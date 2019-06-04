@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Cli (
+  Command(..),
   commandParser
            ) where
 

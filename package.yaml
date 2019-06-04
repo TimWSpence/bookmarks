@@ -1,9 +1,9 @@
 name:                bookmarks
 version:             0.1.0.0
-github:              " TimWSpence/bookmarks"
+github:              "TimWSpence/bookmarks"
 license:             BSD3
 author:              "Tim Spence"
-maintainer:          " timothywspence@gmail.com"
+maintainer:          "timothywspence@gmail.com"
 copyright:           "2019 Tim Spence"
 
 extra-source-files:
@@ -21,6 +21,7 @@ description:         Please see the README on GitHub at <https://github.com/ Tim
 
 dependencies:
 - base >= 4.7 && < 5
+- mtl
 - optparse-applicative
 - text
 - yaml
