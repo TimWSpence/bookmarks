@@ -1,7 +1,7 @@
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE DeriveFunctor              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase                 #-}
+{-# LANGUAGE RecordWildCards            #-}
 {-# LANGUAGE TypeApplications           #-}
 module Main where
 
@@ -10,14 +10,14 @@ import           Control.Exception
 import           Control.Monad.Except
 import           Control.Monad.Reader
 import qualified Data.ByteString.Char8 as B
+import           Data.Coerce
 import           Data.Foldable
 import           Data.Yaml
 import           Database
 import           Lib
 import           Options.Applicative
-import Data.Coerce
-import System.Process
-import System.Environment
+import           System.Environment
+import           System.Process
 
 main :: IO ()
 main = do

@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric    #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RecordWildCards  #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE RecordWildCards #-}
 
 module Database (
   DbConfig(..),
@@ -16,11 +16,11 @@ module Database (
 import           Control.Exception
 import           Control.Monad.Except
 import           Control.Monad.Reader
+import qualified Data.List            as DL
 import           Data.Yaml
 import           GHC.Generics
+import           Text.Regex.PCRE
 import           Type.Reflection
-import qualified Data.List as DL
-import Text.Regex.PCRE
 
 data DbConfig = DbConfig {
   dbPath :: String
