@@ -16,6 +16,8 @@ import           Database
 import           Lib
 import           Options.Applicative
 import Data.Coerce
+import System.Process
+import System.Environment
 
 main :: IO ()
 main = do
@@ -36,7 +38,11 @@ handleCommand = \case
   Search SearchOptions{..} -> do
     bookmarks <- search _pattern
     display bookmarks
-  _    -> error "Not implemented"
+  Edit -> do
+    path <- reader dbPath
+    editor <- fmap (maybe (error "$EDITOR is not set") id) . liftIO $ lookupEnv "EDITOR"
+    liftIO $ createProcess (shell $ editor <> " " <> path)
+    return ()
   where
     display :: [Bookmark] -> App ()
     display bms = liftIO $ traverse_ (B.putStrLn . encode) bms

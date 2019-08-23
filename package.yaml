@@ -24,6 +24,7 @@ dependencies:
 - bytestring
 - mtl
 - optparse-applicative
+- process
 - regex-pcre
 - text
 - yaml
