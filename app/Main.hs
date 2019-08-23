@@ -31,6 +31,12 @@ handleCommand :: Command -> App ()
 handleCommand = \case
   List -> do
     bookmarks <- list
-    liftIO $ traverse_ (B.putStrLn . encode) bookmarks
+    display bookmarks
   Add AddOptions{..} -> insert name url tags
+  Search SearchOptions{..} -> do
+    bookmarks <- search _pattern
+    display bookmarks
   _    -> error "Not implemented"
+  where
+    display :: [Bookmark] -> App ()
+    display bms = liftIO $ traverse_ (B.putStrLn . encode) bms

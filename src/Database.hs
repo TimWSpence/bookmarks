@@ -1,12 +1,16 @@
 {-# LANGUAGE DeriveGeneric    #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE RecordWildCards #-}
+
 module Database (
   DbConfig(..),
   Bookmark(..),
   DbError,
+  Pattern(..),
   insert,
-  list
+  list,
+  search
                 ) where
 
 import           Control.Exception
@@ -15,6 +19,8 @@ import           Control.Monad.Reader
 import           Data.Yaml
 import           GHC.Generics
 import           Type.Reflection
+import qualified Data.List as DL
+import Text.Regex.PCRE
 
 data DbConfig = DbConfig {
   dbPath :: String
@@ -38,12 +44,14 @@ newtype Bookmarks = Bookmarks {
                            } deriving (Show, Generic)
 
 instance FromJSON Bookmark where
-
 instance ToJSON Bookmark where
 
 instance FromJSON Bookmarks where
-
 instance ToJSON Bookmarks where
+
+data Pattern = Literal String
+             | Regex String
+             deriving (Show)
 
 list :: (MonadReader DbConfig m, MonadError DbError m, MonadIO m) => m [Bookmark]
 list = do
@@ -53,10 +61,20 @@ list = do
 
 insert :: (MonadReader DbConfig m, MonadError DbError m, MonadIO m) => String -> String -> [String] -> m ()
 insert n u t = do
-  path <- reader dbPath
-  parse  <- liftIO $ decodeFileEither @Bookmarks path
-  current <- either (\e -> throwError . DbError . prettyPrintParseException $ e) (return . bookmarks) parse
+  path   <- reader dbPath
+  current <- list
   let new = Bookmark{name = n, url = u, tags = t}
   let updated = new : current
-  liftIO $ encodeFile path . Bookmarks $ updated
+  liftIO . encodeFile path . Bookmarks $ updated
 
+search :: (MonadReader DbConfig m, MonadError DbError m, MonadIO m) => Pattern -> m [Bookmark]
+search (Literal p) = do
+  current <- list
+  return . filter (\Bookmark{..} -> matches name || matches url || any matches tags) $ current
+  where
+    matches = DL.isInfixOf p
+search (Regex p) = do
+  current <- list
+  return . filter (\Bookmark{..} -> matches name || matches url || any matches tags) $ current
+  where
+    matches t = t =~ p :: Bool

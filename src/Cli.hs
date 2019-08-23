@@ -1,4 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Cli (
   Command(..),
   AddOptions(..),
@@ -8,6 +10,8 @@ module Cli (
 
 import Options.Applicative
 import Data.Text
+import Database(Pattern(..))
+import Text.Regex.PCRE
 
 data Command
   = Add AddOptions
@@ -17,7 +21,7 @@ data Command
   deriving (Show)
 
 data SearchOptions = SearchOptions {
-  regex :: String
+  _pattern :: Pattern
                                    } deriving (Show)
 
 data AddOptions = AddOptions {
@@ -38,10 +42,20 @@ commands = subparser (
   )
   where
     searchOptions :: Parser SearchOptions
-    searchOptions = SearchOptions <$> regex
+    searchOptions = SearchOptions <$> _pattern
 
-    regex :: Parser String
-    regex = strArgument (help "Pattern to search for" <> metavar "PATTERN")
+    _pattern :: Parser Pattern
+    _pattern = parse <$> strArgument (help "Pattern to search for. May be a literal or a /regex/" <> metavar "PATTERN")
+               where
+                 parse :: String -> Pattern
+                 parse str = match
+                               where
+                                 pat :: String = "/(.*)/"
+                                 (_,_,_,m) = str =~ pat :: (String, String, String, [String]) -- I know, right? :(
+                                 match = case m of
+                                   [] -> Literal str
+                                   [p] -> Regex p
+                                   _ -> error $ "Failed to parse pattern " <> str
 
     addOptions :: Parser AddOptions
     addOptions = AddOptions <$> name <*> url <*> tags
