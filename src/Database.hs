@@ -1,6 +1,6 @@
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric    #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeApplications #-}
 module Database (
   DbConfig(..),
   Bookmark(..),
@@ -9,20 +9,24 @@ module Database (
   list
                 ) where
 
-import Control.Monad.Reader
-import Control.Monad.Except
-import Data.Yaml
-import GHC.Generics
+import           Control.Exception
+import           Control.Monad.Except
+import           Control.Monad.Reader
+import           Data.Yaml
+import           GHC.Generics
+import           Type.Reflection
 
 data DbConfig = DbConfig {
   dbPath :: String
                          } deriving (Show)
 
-data DbError = DbError String
+data DbError = DbError String deriving (Show, Typeable)
+
+instance Exception DbError
 
 data Bookmark = Bookmark {
   name :: String,
-  url :: String,
+  url  :: String,
   tags :: [String]
                          } deriving (Show, Generic)
 
@@ -45,6 +49,5 @@ list :: (MonadReader DbConfig m, MonadError DbError m, MonadIO m) => m [Bookmark
 list = do
   path   <- reader dbPath
   parse  <- liftIO $ decodeFileEither @Bookmarks path
-  liftIO $ print parse
   result <- either (\e -> throwError . DbError . prettyPrintParseException $ e) (return . bookmarks) parse
   return result
