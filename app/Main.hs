@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE DeriveFunctor              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase                 #-}
@@ -14,6 +15,7 @@ import           Data.Yaml
 import           Database
 import           Lib
 import           Options.Applicative
+import Data.Coerce
 
 main :: IO ()
 main = do
@@ -28,7 +30,7 @@ newtype App a = App { runApp :: ReaderT DbConfig (ExceptT DbError IO) a } derivi
 handleCommand :: Command -> App ()
 handleCommand = \case
   List -> do
-    liftIO $ putStrLn "handling list"
     bookmarks <- list
     liftIO $ traverse_ (B.putStrLn . encode) bookmarks
+  Add AddOptions{..} -> insert name url tags
   _    -> error "Not implemented"

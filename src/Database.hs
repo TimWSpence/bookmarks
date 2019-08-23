@@ -24,13 +24,16 @@ data DbError = DbError String deriving (Show, Typeable)
 
 instance Exception DbError
 
+-- Ideally these fields would be newtypes but I couldn't be
+-- bothered to make {To,From}JSON instances which unwrapped
+-- the newtype instead of treating it as a record
 data Bookmark = Bookmark {
   name :: String,
   url  :: String,
   tags :: [String]
                          } deriving (Show, Generic)
 
-data Bookmarks = Bookmarks {
+newtype Bookmarks = Bookmarks {
   bookmarks :: [Bookmark]
                            } deriving (Show, Generic)
 
@@ -42,12 +45,18 @@ instance FromJSON Bookmarks where
 
 instance ToJSON Bookmarks where
 
-insert :: Bookmark -> m ()
-insert = undefined
-
 list :: (MonadReader DbConfig m, MonadError DbError m, MonadIO m) => m [Bookmark]
 list = do
   path   <- reader dbPath
   parse  <- liftIO $ decodeFileEither @Bookmarks path
-  result <- either (\e -> throwError . DbError . prettyPrintParseException $ e) (return . bookmarks) parse
-  return result
+  either (\e -> throwError . DbError . prettyPrintParseException $ e) (return . bookmarks) parse
+
+insert :: (MonadReader DbConfig m, MonadError DbError m, MonadIO m) => String -> String -> [String] -> m ()
+insert n u t = do
+  path <- reader dbPath
+  parse  <- liftIO $ decodeFileEither @Bookmarks path
+  current <- either (\e -> throwError . DbError . prettyPrintParseException $ e) (return . bookmarks) parse
+  let new = Bookmark{name = n, url = u, tags = t}
+  let updated = new : current
+  liftIO $ encodeFile path . Bookmarks $ updated
+
