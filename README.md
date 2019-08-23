@@ -6,7 +6,7 @@ A Haskell rewrite of [bookmarks.rb](https://github.com/TimWSpence/bookmarks.rb)
 
 Because Haskell :) But also because building a binary with Stack is much
 easier and more reliable than trying to set ruby up to `bundle exec` with the right Ruby/Gem
-versions. Mine own installation of `bookmarks.rb` has broken on numerous occasions
+versions. My own installation of `bookmarks.rb` has broken on numerous occasions
 when installing/changing system Ruby versions, etc
 
 ### Overview
@@ -45,3 +45,10 @@ The key advantages I see this offering are:
 3. Entirely browser-agnostic (although does require running a terminal as well
    to search for bookmarks but most terminal emulators will allow you to directly
    open links by clicking on them so I don't see this being prohibitively painful)
+
+### Installation
+
+1. Install [Stack](https://docs.haskellstack.org/en/stable/README/)
+2. Ensure Stack's install directory is on your path (probably something like `$HOME/.local/bin`)
+3. `stack install`
+4. `bookmarks-exe --help`
