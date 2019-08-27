@@ -14,7 +14,6 @@ import           Data.Coerce
 import           Data.Foldable
 import           Data.Yaml
 import           Database
-import           Lib
 import           Options.Applicative
 import           System.Environment
 import           System.Process
